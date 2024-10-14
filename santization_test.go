@@ -7,14 +7,15 @@ import (
 )
 
 var (
-	enc = tfhe.NewEncryptor(ParamsBinarySanitize.Parameters)
-	san = NewSanitizer(ParamsBinarySanitize, enc.GenPublicKey(), enc.GenEvaluationKeyParallel())
+	params = ParamsBinarySanitize11.Compile()
+	enc    = tfhe.NewEncryptor(params.Parameters)
+	san    = NewSanitizer(params, enc.GenPublicKey(), enc.GenEvaluationKeyParallel())
 )
 
 func TestSanitize(t *testing.T) {
 	for m := range []int{0, 1} {
 		ct := enc.EncryptLWE(m)
-		ctOut := tfhe.NewLWECiphertext(ParamsBinarySanitize.Parameters)
+		ctOut := tfhe.NewLWECiphertext(params.Parameters)
 		san.SanitizeAssign(ct, ctOut)
 
 		if enc.DecryptLWE(ctOut) != m {
