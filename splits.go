@@ -2,9 +2,9 @@ package sanitize
 
 import "github.com/sp301415/tfhe-go/math/poly"
 
-func (s *Sanitizer) Split5(p poly.Poly[uint64], fpSplit [5]poly.FourierPoly) {
-	splitCount := 5
-	splitBits := 13
+func (s *Sanitizer) Split3(p poly.Poly[uint64], fpSplit [3]poly.FourierPoly) {
+	splitCount := 3
+	splitBits := 22
 	splitMask := uint64((1 << splitBits) - 1)
 
 	for i := 0; i < splitCount; i++ {
@@ -16,9 +16,9 @@ func (s *Sanitizer) Split5(p poly.Poly[uint64], fpSplit [5]poly.FourierPoly) {
 	}
 }
 
-func (s *Sanitizer) MulSplit5(fp poly.FourierPoly, fpSplit [5]poly.FourierPoly, pOut poly.Poly[uint64]) {
-	splitCount := 5
-	splitBits := 13
+func (s *Sanitizer) MulSplit3(fp poly.FourierPoly, fpSplit [3]poly.FourierPoly, pOut poly.Poly[uint64]) {
+	splitCount := 3
+	splitBits := 22
 
 	for i := 0; i < splitCount; i++ {
 		s.BaseEvaluator.PolyEvaluator.MulFourierPolyAssign(fp, fpSplit[i], s.fpSplitBuff[i])

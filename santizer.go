@@ -29,20 +29,20 @@ type Sanitizer struct {
 	idLut tfhe.LookUpTable[uint64]
 
 	pSplitBuff  poly.Poly[uint64]
-	fpSplitBuff [5]poly.FourierPoly
+	fpSplitBuff [3]poly.FourierPoly
 
-	p0Split    [5]poly.FourierPoly
-	p1Split    [5]poly.FourierPoly
+	p0Split    [3]poly.FourierPoly
+	p1Split    [3]poly.FourierPoly
 	fpGaussian poly.FourierPoly
 }
 
 func NewSanitizer(params Parameters, pk tfhe.PublicKey[uint64], evk tfhe.EvaluationKey[uint64]) *Sanitizer {
 	eval := tfhe.NewEvaluator(params.Parameters, evk)
 
-	fpSplitBuff := [5]poly.FourierPoly{}
-	p0Split := [5]poly.FourierPoly{}
-	p1Split := [5]poly.FourierPoly{}
-	for i := 0; i < 5; i++ {
+	fpSplitBuff := [3]poly.FourierPoly{}
+	p0Split := [3]poly.FourierPoly{}
+	p1Split := [3]poly.FourierPoly{}
+	for i := 0; i < 3; i++ {
 		fpSplitBuff[i] = eval.PolyEvaluator.NewFourierPoly()
 		p0Split[i] = eval.PolyEvaluator.NewFourierPoly()
 		p1Split[i] = eval.PolyEvaluator.NewFourierPoly()
@@ -91,8 +91,8 @@ func (s *Sanitizer) RandAssign(ctOut tfhe.LWECiphertext[uint64]) {
 	}
 	s.BaseEvaluator.PolyEvaluator.ToFourierPolyAssign(s.r, s.fpGaussian)
 
-	s.Split5(s.PublicKey.GLWEKey.Value[0].Value[1], s.p1Split)
-	s.MulSplit5(s.fpGaussian, s.p1Split, s.randGLWE.Value[1])
+	s.Split3(s.PublicKey.GLWEKey.Value[0].Value[1], s.p1Split)
+	s.MulSplit3(s.fpGaussian, s.p1Split, s.randGLWE.Value[1])
 	s.BaseEvaluator.PolyEvaluator.AddPolyAssign(s.e1, s.randGLWE.Value[1], s.randGLWE.Value[1])
 
 	s.randGLWE.ToLWECiphertextAssign(0, ctOut)
@@ -122,8 +122,8 @@ func (s *Sanitizer) SanitizeAssign(ct, ctOut tfhe.LWECiphertext[uint64]) {
 	}
 	s.BaseEvaluator.PolyEvaluator.MonomialMulPolyInPlace(s.r, -b)
 	s.BaseEvaluator.PolyEvaluator.ToFourierPolyAssign(s.r, s.fpGaussian)
-	s.Split5(s.ctRotate.Value[1], s.p1Split)
-	s.MulSplit5(s.fpGaussian, s.p1Split, s.ctRotate.Value[1])
+	s.Split3(s.ctRotate.Value[1], s.p1Split)
+	s.MulSplit3(s.fpGaussian, s.p1Split, s.ctRotate.Value[1])
 
 	s.ctRotate.ToLWECiphertextAssign(0, ctOut)
 	ctOut.Value[0] = s.r.Coeffs[0] * s.ctRotate.Value[0].Coeffs[0]

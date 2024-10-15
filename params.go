@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	GaussianBound      = 13.15
+	GaussianBound      = 12.0
 	SmoothingParameter = 6.0
 )
 
@@ -36,8 +36,8 @@ var (
 		GLWEStdDev: 0.0000000000000003472576015484159,
 
 		BootstrapParameters: tfhe.GadgetParametersLiteral[uint64]{
-			Base:  1 << 9,
-			Level: 4,
+			Base:  1 << 11,
+			Level: 3,
 		},
 		KeySwitchParameters: tfhe.GadgetParametersLiteral[uint64]{
 			Base:  1 << 3,
@@ -99,13 +99,14 @@ func BlindRotateVariance(params tfhe.Parameters[uint64]) float64 {
 func RandParams(params tfhe.Parameters[uint64]) (sig, tau float64) {
 	N := float64(params.PolyDegree())
 	sigGLWE := params.GLWEStdDevQ()
+	eta := SmoothingParameter * math.Sqrt(2.0/math.Pi)
 	B := GaussianBound * sigGLWE
 
-	S := N * N * (1 + B*B)
-	T := N * (sigGLWE*sigGLWE + 1.0/4.0)
+	S := N * (sigGLWE*sigGLWE + 1.0/4.0)
+	T := N * N * (1 + B*B)
 
-	sig = SmoothingParameter * math.Sqrt((math.Sqrt(S)+math.Sqrt(T))/math.Sqrt(T))
-	tau = sig * math.Sqrt(math.Sqrt(S*T))
+	sig = eta * math.Sqrt((math.Sqrt(S)+math.Sqrt(T))/math.Sqrt(S))
+	tau = eta * math.Sqrt(T+math.Sqrt(S*T))
 
 	return
 }
@@ -123,13 +124,13 @@ func MulParams(params tfhe.Parameters[uint64]) (sig, tau float64) {
 	varBR := BlindRotateVariance(params)
 	sigBR := math.Sqrt(varBR)
 	B := GaussianBound * sigBR
-	p := float64(params.MessageModulus() << 1)
+	eta := SmoothingParameter * 2 * float64(params.MessageModulus()) / math.Sqrt(2*math.Pi)
 
-	S := N * N * B * B
-	T := N * varBR
+	S := N * varBR
+	T := N * N * B * B
 
-	sig = p * SmoothingParameter * math.Sqrt((math.Sqrt(S)+math.Sqrt(T))/math.Sqrt(T))
-	tau = sig * math.Sqrt(math.Sqrt(S*T))
+	sig = eta * math.Sqrt((math.Sqrt(S)+math.Sqrt(T))/math.Sqrt(S))
+	tau = eta * math.Sqrt(T+math.Sqrt(S*T))
 
 	return
 }
