@@ -51,7 +51,7 @@ func BenchmarkSoakSpin(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		for j := 0; j < 7; j++ {
+		for j := 0; j < 5; j++ {
 			san.BaseEvaluator.BootstrapLUTAssign(ct, idLUT, ct)
 			ct.Value[0] += san.RoundedSampler.Sample(math.Exp2(58.15))
 		}
