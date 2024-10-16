@@ -14,7 +14,8 @@ var (
 )
 
 func TestSanitize(t *testing.T) {
-	for m := range []int{0, 1} {
+	for i := 0; i < 100; i++ {
+		m := int(enc.BinarySampler.Sample())
 		ct := enc.EncryptLWE(m)
 		ctOut := tfhe.NewLWECiphertext(params.Parameters)
 		san.SanitizeAssign(ct, ctOut)
