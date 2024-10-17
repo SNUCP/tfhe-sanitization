@@ -3,6 +3,7 @@ package sanitize
 import (
 	"math"
 
+	"github.com/sp301415/tfhe-go/math/num"
 	"github.com/sp301415/tfhe-go/tfhe"
 )
 
@@ -99,7 +100,7 @@ func BlindRotateVariance(params tfhe.Parameters[uint64]) float64 {
 func RandParams(params tfhe.Parameters[uint64]) (sig, tau float64) {
 	N := float64(params.PolyDegree())
 	sigGLWE := params.GLWEStdDevQ()
-	eta := SmoothingParameter * math.Sqrt(2.0/math.Pi)
+	eta := num.Max(SmoothingParameter*math.Sqrt(2.0/math.Pi), 47.25*math.Sqrt2)
 	B := GaussianBound * sigGLWE
 
 	S := N * (sigGLWE*sigGLWE + 1.0/4.0)
